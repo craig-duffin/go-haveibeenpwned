@@ -1,4 +1,4 @@
-package pwnWatch
+package haveibeenpwned
 
 import (
 	"net/http"
