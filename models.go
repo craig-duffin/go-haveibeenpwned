@@ -1,4 +1,4 @@
-package api
+package haveibeenpwned
 
 type Breach struct {
 	Title string `json:"Title"`

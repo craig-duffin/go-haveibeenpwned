@@ -5,7 +5,6 @@ import (
 	"time"
 	"io/ioutil"
 	"encoding/json"
-	"pwnWatch/api"
 )
 
 const APIurl = "https://haveibeenpwned.com/api/v2/"
@@ -30,8 +29,8 @@ func DoRequest(request *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func GetAccountBreaches(account string) ([]api.Breach, error) {
-	var breaches []api.Breach
+func GetAccountBreaches(account string) ([]Breach, error) {
+	var breaches []Breach
 
 	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"breachedaccount/"+account,nil)
 
@@ -53,8 +52,8 @@ func GetAccountBreaches(account string) ([]api.Breach, error) {
 	return breaches,nil
 }
 
-func GetBreach(breachName string) (api.Breach, error) {
-	var breach api.Breach
+func GetBreach(breachName string) (Breach, error) {
+	var breach Breach
 	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"breach/"+breachName,nil)
 
 	if reqErr != nil{
@@ -75,8 +74,8 @@ func GetBreach(breachName string) (api.Breach, error) {
 	return breach,nil
 }
 
-func GetBreaches()  ([]api.Breach, error) {
-	var breaches []api.Breach
+func GetBreaches()  ([]Breach, error) {
+	var breaches []Breach
 
 	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"breaches",nil)
 
@@ -98,8 +97,8 @@ func GetBreaches()  ([]api.Breach, error) {
 	return breaches,nil
 }
 
-func GetAccountPastes(account string) ([]api.Paste, error) {
-	var pastes []api.Paste
+func GetAccountPastes(account string) ([]Paste, error) {
+	var pastes []Paste
 
 	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"pasteaccount/"+account,nil)
 
