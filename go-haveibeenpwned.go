@@ -2,141 +2,95 @@ package haveibeenpwned
 
 import (
 	"net/http"
-	"time"
-	"io/ioutil"
 	"encoding/json"
+	"log"
+	"crypto/sha1"
+	"fmt"
 )
 
 const APIurl = "https://haveibeenpwned.com/api/v2/"
 
-
-func DoRequest(request *http.Request) ([]byte, error) {
-	var httpClient = &http.Client{Timeout: 10 * time.Second}
-	var response []byte
-
-	request.Header.Set("User-Agent", "pwnWatch")
-
-	res, getErr := httpClient.Do(request)
-
-	if getErr != nil {
-		return response,getErr
+func GetAccountBreaches(account string) (breaches []Breach) {
+	res, err := http.Get(APIurl+"breachedaccount/"+account)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil{
-		return response,readErr
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&breaches)
+	if err != nil {
+		log.Fatal(err)
 	}
-	return body, nil
+	return
 }
 
-func GetAccountBreaches(account string) ([]Breach, error) {
-	var breaches []Breach
-
-	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"breachedaccount/"+account,nil)
-
-	if reqErr != nil{
-		return breaches,reqErr
+func GetBreach(breachName string) (breach Breach) {
+	res, err := http.Get(APIurl+"breachedaccount/"+breachName)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	body, err := DoRequest(req)
-
-	if err != nil{
-		return breaches, err
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&breach)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	jsonErr := json.Unmarshal(body,&breaches)
-	if jsonErr != nil {
-		return breaches,jsonErr
-	}
-
-	return breaches,nil
+	return
 }
 
-func GetBreach(breachName string) (Breach, error) {
-	var breach Breach
-	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"breach/"+breachName,nil)
-
-	if reqErr != nil{
-		return breach,reqErr
+func GetBreaches()  (breaches []Breach) {
+	res, err := http.Get(APIurl+"breaches")
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	body, err := DoRequest(req)
-
-	if err != nil{
-		return breach, err
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&breaches)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	jsonErr := json.Unmarshal(body,&breach)
-	if jsonErr != nil {
-		return breach,jsonErr
-	}
-
-	return breach,nil
+	return
 }
 
-func GetBreaches()  ([]Breach, error) {
-	var breaches []Breach
-
-	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"breaches",nil)
-
-	if reqErr != nil{
-		return breaches,reqErr
+func GetAccountPastes(account string) (pastes []Paste) {
+	res, err := http.Get(APIurl+"pasteaccount/"+account)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	body, err := DoRequest(req)
-
-	if err != nil{
-		return breaches, err
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&pastes)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	jsonErr := json.Unmarshal(body,&breaches)
-	if jsonErr != nil {
-		return breaches,jsonErr
-	}
-
-	return breaches,nil
+	return
 }
 
-func GetAccountPastes(account string) ([]Paste, error) {
-	var pastes []Paste
-
-	req, reqErr := http.NewRequest(http.MethodGet,APIurl+"pasteaccount/"+account,nil)
-
-	if reqErr != nil{
-		return pastes,reqErr
+func GetDataClasses() (dataClasses []string){
+	res, err := http.Get(APIurl+"pasteaccount/"+"dataclasses")
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	body, err := DoRequest(req)
-
-	if err != nil{
-		return pastes, err
+	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	err = decoder.Decode(&dataClasses)
+	if err != nil {
+		log.Fatal(err)
 	}
+	return
+}
 
-	jsonErr := json.Unmarshal(body,&pastes)
-	if jsonErr != nil {
-		return pastes,jsonErr
+func CheckPassword(password string) bool {
+	hash := sha1.New()
+	hash.Write([]byte(password))
+	sha := hash.Sum(nil)
+	res, err := http.Get(fmt.Sprintf("%spwnedpassword/%x?originalPasswordIsAHash=true",APIurl,sha))
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	return pastes,nil
+	defer res.Body.Close()
+	if res.StatusCode == http.StatusOK {
+		return true
+	}
+	return false
 }
-
-/*
-var commandMap = make(map[string]Command,0)
-
-
-type ExecFunc func(client *http.Client, flagSet *flag.FlagSet)
-
-type Command struct {
-	flagSet *flag.FlagSet
-	exec ExecFunc
-}
-
-func RegisterCliCommand(name string, flagSet *flag.FlagSet, exec ExecFunc)  {
-	commandMap[name] = Command{flagSet, exec}
-}
-
-func InitFlags()  {
-
-}
-
-*/
