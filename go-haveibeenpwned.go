@@ -25,7 +25,7 @@ func GetAccountBreaches(account string) (breaches []Breach) {
 }
 
 func GetBreach(breachName string) (breach Breach) {
-	res, err := http.Get(APIurl+"breachedaccount/"+breachName)
+	res, err := http.Get(APIurl+"breach/"+breachName)
 	if err != nil {
 		log.Fatal(err)
 	}
