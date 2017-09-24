@@ -27,6 +27,7 @@ func main()  {
 	case "get-data-classes":
 		displayDataClasses()
 	case "check-password":
+		displayCheckPassword(args[2])
 	default:
 		displayHelp()
 	}
@@ -104,6 +105,14 @@ func displayAccountPastes(account string)  {
 func displayDataClasses()  {
 	dataClasses := haveibeenpwned.GetDataClasses()
 	fmt.Printf("%s",arrayToStringWithCommas(dataClasses))
+}
+
+func displayCheckPassword(password string)  {
+	if haveibeenpwned.CheckPassword(password){
+		fmt.Println("You may have been Pwned, the password you have entered is contained within one or more breaches")
+	}else {
+		fmt.Println("The password you have entered has not been located in any known breaches")
+	}
 }
 
 func displayHelp()  {
