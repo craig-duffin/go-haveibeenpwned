@@ -4,15 +4,16 @@ import (
 	"github.com/craig-duffin/go-haveibeenpwned"
 	"os"
 	"fmt"
+	"github.com/crackcomm/go-clitable"
 )
 
 func main()  {
 	args := os.Args
 
-	if !(len(args) == 1 || len(args) ==2){
+	if (len(args) <2 || len(args) >3){
 		displayHelp()
+		os.Exit(1)
 	}
-
 
 	switch args[1] {
 	case "get-account-breaches":
@@ -24,6 +25,7 @@ func main()  {
 	case "get-account-pastes":
 		displayAccountPastes(args[2])
 	case "get-data-classes":
+		displayDataClasses()
 	case "check-password":
 	default:
 		displayHelp()
@@ -43,7 +45,7 @@ func displayAccountBreaches(account string)  {
 		row["Breach Date"] = breach.BreachDate
 		rows = append(rows,row)
 	}
-	PrettyPrintMany(headers,rows)
+	prettyPrintMany(headers,rows)
 }
 
 func displayBreach(breachName string)  {
@@ -65,7 +67,7 @@ func displayBreach(breachName string)  {
 	row["Is Spam List?"] = breach.IsSpamList
 	row["Logo Type"] = breach.LogoType
 
-	PrettyPrintSingle(row)
+	prettyPrintSingle(row)
 }
 
 func displayAllBreaches()  {
@@ -81,7 +83,7 @@ func displayAllBreaches()  {
 		row["Breach Date"] = breach.BreachDate
 		rows = append(rows,row)
 	}
-	PrettyPrintMany(headers,rows)
+	prettyPrintMany(headers,rows)
 }
 
 func displayAccountPastes(account string)  {
@@ -96,14 +98,12 @@ func displayAccountPastes(account string)  {
 		row["Date"] = paste.Date
 		row["Email Count"] = paste.EmailCount
 	}
-	PrettyPrintMany(headers,rows)
+	prettyPrintMany(headers,rows)
 }
 
-func arrayToStringWithCommas(stringArray []string) (stringWithComma string) {
-	for _, element := range stringArray{
-		stringWithComma += element+","
-	}
-	return
+func displayDataClasses()  {
+	dataClasses := haveibeenpwned.GetDataClasses()
+	fmt.Printf("%s",arrayToStringWithCommas(dataClasses))
 }
 
 func displayHelp()  {
@@ -114,4 +114,27 @@ func displayHelp()  {
 	fmt.Println("check-password <password>                 --Checks if a password is included in a breach/paste--")
 	fmt.Println("get-all-breaches                          --Retrieves information about all breaches--")
 	fmt.Println("get-data-classes                          --Retrieves statistics of different data classes--")
+}
+
+func arrayToStringWithCommas(stringArray []string) (stringWithComma string) {
+	for _, element := range stringArray{
+		stringWithComma += element+", "
+	}
+	return
+}
+
+
+
+// PrettyPrintMany - Pretty prints maps as tables
+func prettyPrintMany(headers []string, rows []map[string]interface{}) {
+	table := clitable.New(headers)
+	for _, row := range rows {
+		table.AddRow(row)
+	}
+	table.Print()
+}
+
+// PrettyPrintSingle - Pretty prints map as tables
+func prettyPrintSingle(row map[string]interface{}) {
+	clitable.PrintHorizontal(row)
 }

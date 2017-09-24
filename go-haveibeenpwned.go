@@ -67,7 +67,7 @@ func GetAccountPastes(account string) (pastes []Paste) {
 }
 
 func GetDataClasses() (dataClasses []string){
-	res, err := http.Get(APIurl+"pasteaccount/"+"dataclasses")
+	res, err := http.Get(APIurl+"dataclasses")
 	if err != nil {
 		log.Fatal(err)
 	}
